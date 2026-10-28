@@ -3,206 +3,273 @@
 <head>
 <meta charset="utf-8">
 <title>Digital Microscope AR/VR Report</title>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 <style>
 @page{size:420mm 297mm;margin:0}
-:root{--ink:#10222b;--teal:#0b7a75;--tint:#e3f2f1;--amber:#f2a900;--line:#cfdadc}
+:root{--ink:#1b1d20;--grey:#5d636b;--rule:#c8ccd1;--acc:#1f4e79;--warn:#9a5b00}
 *{box-sizing:border-box}
 html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{margin:0;background:#cfd8da;font:12pt/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}
-.bar{position:sticky;top:0;background:var(--ink);color:#fff;padding:10px 16px;z-index:9;font-size:14px}
-.bar button{padding:8px 16px;font-weight:700;border:0;border-radius:6px;background:var(--amber);margin-right:12px}
-.sheet{width:420mm;height:297mm;margin:10mm auto;background:#fff;padding:14mm 16mm 10mm;position:relative;overflow:hidden;break-after:page;display:flex;flex-direction:column}
+body{margin:0;background:#d9dcdf;font:11.5pt/1.5 "Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink)}
+.bar{position:sticky;top:0;z-index:9;background:#1b1d20;color:#fff;padding:10px 16px;font-size:14px}
+.bar button{padding:8px 16px;font-weight:600;border:0;border-radius:4px;background:#fff;color:#1b1d20;margin-right:12px}
+.bar button:disabled{opacity:.5}
+.sheet{width:420mm;height:297mm;margin:10mm auto;background:#fff;padding:12mm 16mm 9mm;display:grid;grid-template-columns:60mm 1fr;grid-template-rows:auto 1fr auto;column-gap:12mm;position:relative;overflow:hidden;break-after:page}
 @media print{body{background:#fff}.bar{display:none}.sheet{margin:0}}
-.hd{display:flex;align-items:center;gap:8mm;border-bottom:3mm solid var(--ink);padding-bottom:5mm;margin-bottom:7mm}
-.num{width:28mm;height:28mm;background:var(--teal);color:#fff;font-size:60pt;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:5mm;flex:none}
-.hd h1{margin:0;font-size:36pt;line-height:1.05}
-.hd p{margin:2mm 0 0;font-size:14pt;max-width:230mm}
-.tag{margin-left:auto;text-align:right;font:600 11pt ui-monospace,Menlo,Consolas,monospace;color:var(--teal);flex:none}
-.main{flex:1;display:grid;gap:7mm;min-height:0}
-.ft{display:flex;justify-content:space-between;border-top:1.5mm solid var(--line);padding-top:3mm;margin-top:5mm;font-size:10.5pt;color:#4a5b62}
-.card{border:1.2mm solid var(--ink);border-radius:5mm;padding:5mm 6mm;background:#fff;min-height:0}
-.card.t{background:var(--tint);border-color:var(--teal)}
-h2{margin:0 0 2mm;font-size:18pt}
-.k{font:700 10pt ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:2mm}
-ol,ul{margin:0;padding-left:6mm}
-li{margin:1mm 0}
-p{margin:0 0 2mm}
-.warn{background:#fff4d6;border-left:3mm solid var(--amber);padding:3.5mm 5mm;border-radius:2mm;font-size:11.5pt}
-.warn b{text-transform:uppercase;letter-spacing:.06em}
-table{border-collapse:collapse;width:100%;font-size:11pt}
-td,th{border-bottom:.4mm solid var(--line);padding:1.6mm 2mm;text-align:left;vertical-align:top}
-th{font-size:9.5pt;text-transform:uppercase;color:#4a5b62}
-.hatch{background:repeating-linear-gradient(135deg,var(--teal) 0 2mm,#fff 2mm 3.5mm);border:.5mm solid var(--teal);height:7mm}
-.bars div.r{margin:2.5mm 0}
-.s1{grid-template-columns:1.1fr 1fr;grid-template-rows:1fr auto}
-.bot{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7mm}
-.s2{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr}
-.ill{height:30mm;border-radius:3mm;background:var(--tint);margin-bottom:3mm;overflow:hidden}
-.ill svg{width:100%;height:100%}
-.idea{margin-top:2mm;font-size:11pt;background:#fff4d6;padding:2mm 3mm;border-radius:2mm}
-.s3{grid-template-columns:1fr 1.15fr 1fr;grid-template-rows:1fr auto}
-.step{display:flex;gap:4mm;align-items:center;background:var(--tint);border-radius:3mm;padding:2mm 4mm;margin:1.5mm 0;font-weight:600}
-.step i{flex:none;width:8mm;height:8mm;border-radius:50%;background:var(--teal);color:#fff;font-style:normal;display:flex;align-items:center;justify-content:center}
-.stat{display:inline-block;width:48%;margin:1mm 0}
-.stat b{display:block;font-size:34pt;line-height:1;color:var(--teal)}
-.fld{background:#eef2f3;padding:0 3mm;border-radius:1mm;min-width:40mm;display:inline-block}
-.s4{display:flex;flex-direction:column;gap:6mm}
-.qrs,.defs{display:grid;grid-template-columns:repeat(3,1fr);gap:7mm}
-.qc{display:flex;gap:5mm}
-.qc .q{width:54mm;flex:none}
-.qc .q svg{width:54mm;height:54mm;border:1mm solid var(--ink);border-radius:2mm}
-.u{font:600 11pt ui-monospace,Menlo,monospace;word-break:break-all}
+.rh,.rf{grid-column:1/3;display:flex;justify-content:space-between;font-size:9.5pt;color:var(--grey)}
+.rh{border-bottom:.35mm solid var(--ink);padding-bottom:2mm;margin-bottom:8mm}
+.rf{border-top:.25mm solid var(--rule);padding-top:2mm;margin-top:5mm}
+.side .sn{font-size:46pt;line-height:1;font-weight:300;color:var(--acc)}
+.side h2{font-size:17pt;line-height:1.2;font-weight:600;margin:3mm 0 4mm}
+.side p{font-size:10.5pt;color:var(--grey);margin:0 0 3mm}
+.body{min-height:0;min-width:0}
+h1{font-size:30pt;line-height:1.1;font-weight:600;margin:0}
+.sub{font-size:13pt;color:var(--grey);margin:2mm 0 0}
+h3{font-size:13pt;font-weight:600;margin:0 0 2mm}
+h3 .n{color:var(--acc);margin-right:2.5mm}
+p{margin:0 0 2.5mm}
+ul,ol{margin:0;padding-left:5.5mm}
+li{margin:.8mm 0}
+table{border-collapse:collapse;width:100%;font-size:10.5pt}
+th{text-align:left;font-weight:600;border-top:.5mm solid var(--ink);border-bottom:.3mm solid var(--ink);padding:1.3mm 2mm;vertical-align:bottom}
+td{border-bottom:.2mm solid var(--rule);padding:1.1mm 2mm;vertical-align:top}
+table tr:last-child td{border-bottom:.5mm solid var(--ink)}
+tr.g td{font-weight:600;color:var(--acc);border-bottom:.3mm solid var(--acc);padding-top:2.2mm}
+.kv td:first-child{width:34mm;color:var(--grey)}
+.tc{font-size:10pt;margin:0 0 1.5mm}
+.cap{font-size:9.5pt;color:var(--grey);margin:2mm 0 0}
+.cap b,.tc b{color:var(--ink)}
+.note{border-left:1mm solid var(--grey);padding:1.5mm 4mm;font-size:10.5pt;margin:3mm 0}
+.note.c{border-color:var(--warn)}
+.note b{display:block;font-size:9pt;letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+.note.c b{color:var(--warn)}
+.fld{display:inline-block;min-width:55mm;border-bottom:.25mm dotted var(--grey);outline:none}
+/* sheet 1 */
+.b1{display:grid;grid-template-rows:auto auto 1fr;row-gap:6mm}
+.r1{display:grid;grid-template-columns:192mm 1fr;column-gap:8mm}
+.figw{position:relative;width:192mm;height:120mm}
+.figw img{width:100%;height:100%;display:block}
+#cos{position:absolute;inset:0}
+.co{position:absolute;width:6.5mm;height:6.5mm;margin:-3.25mm 0 0 -3.25mm;border-radius:50%;background:#fff;color:var(--ink);border:.4mm solid var(--ink);font:600 10.5pt "Segoe UI",Arial,sans-serif;display:flex;align-items:center;justify-content:center;line-height:1}
+.r2{display:grid;grid-template-columns:1fr 1fr;column-gap:10mm;align-items:start}
+/* sheet 2 */
+.b2{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr auto;gap:7mm 10mm}
+.b2 .wide{grid-column:1/3}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:6mm}
+.charts svg{width:100%;height:auto;display:block}
+.fn{display:grid;grid-template-columns:repeat(3,1fr);gap:10mm;font-size:10.5pt}
+.fn h4{font-size:10.5pt;margin:0 0 1.5mm;color:var(--acc)}
+/* sheet 3 */
+.b3{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:8mm 10mm}
+.fv .im{aspect-ratio:2/1;width:100%;overflow:hidden}
+.fv .im img{width:100%;height:100%;display:block}
+.fv .cap{margin:1.5mm 0 2mm}
+.fv ul{font-size:10.5pt}
+/* sheet 4 */
+.b4{display:grid;grid-template-columns:1fr 1.05fr;column-gap:12mm}
+.col>*+*{margin-top:6mm}
+.flow{display:flex;align-items:stretch;gap:1.5mm;margin:1.5mm 0 2.5mm}
+.flow div{flex:1;border:.3mm solid var(--ink);padding:1.8mm 1.5mm;font-size:9.5pt;text-align:center;display:flex;align-items:center;justify-content:center;line-height:1.25}
+.flow.p div{border-style:dashed;border-color:var(--grey);color:var(--grey)}
+.flow i{font-style:normal;align-self:center;color:var(--grey)}
+.fl{font-size:9.5pt;color:var(--grey)}
+.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+.qrs svg{width:100%;height:auto;display:block;border:.3mm solid var(--ink)}
+.qrs .t{font-weight:600;font-size:10.5pt;margin:2mm 0 1mm}
+.qrs ol{font-size:10pt}
+.u{font:600 10.5pt ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.src li{font-size:10pt}
 </style>
 </head>
 <body>
-<div class="bar"><button onclick="print()">Print or save as PDF</button>Print settings: paper A3, landscape, margins none, background graphics on.
-<span id="local" hidden> | You opened this file from your computer. The QR codes use the default address. Open this page from the hosted site before you print.</span></div>
+<div class="bar"><button id="pbtn" disabled onclick="print()">Print or save as PDF</button><span id="rstat">Building the 3D pictures. Wait about 10 seconds.</span> Print settings: paper A3, landscape, margins none, background graphics on.
+<span id="local" hidden> | You opened this file from your computer. Open this page from the hosted site.</span></div>
 
 <!-- SHEET 1 -->
 <section class="sheet">
-<div class="hd"><div class="num">1</div><div><h1>The digital microscope, taken apart</h1><p>A digital microscope has a lens, a light and a camera. It sends the image to a screen. This sheet shows the 7 main parts.</p></div><div class="tag">SHEET 1 OF 4<br>THE DEVICE</div></div>
-<div class="main s1">
-<div class="card t" style="display:flex;flex-direction:column"><div class="k">Exploded view | side | not to scale</div>
-<div style="flex:1;min-height:0">
-<svg viewBox="0 0 640 540" style="width:100%;height:100%">
-<line x1="320" y1="30" x2="320" y2="470" stroke="#8ea0a7" stroke-width="2" stroke-dasharray="8 7"/>
-<rect x="250" y="60" width="140" height="14" rx="2" fill="#1b7a3a"/>
-<rect x="272" y="48" width="30" height="12" fill="#26323a"/>
-<rect x="390" y="62" width="28" height="10" fill="#b9c4c9"/>
-<path d="M418 67H480" stroke="#26323a" stroke-width="5"/>
-<rect x="265" y="140" width="110" height="12" rx="2" fill="#1b7a3a"/>
-<rect x="295" y="152" width="50" height="6" fill="#d4a72c"/>
-<rect x="40" y="95" width="110" height="250" rx="16" fill="#cfeae7" stroke="#0b7a75" stroke-width="4"/>
-<rect x="56" y="111" width="78" height="218" rx="8" fill="#fff" stroke="#0b7a75" stroke-width="2" stroke-dasharray="6 5"/>
-<rect x="275" y="225" width="90" height="64" rx="6" fill="#b9c4c9" stroke="#26323a" stroke-width="2"/>
-<ellipse cx="320" cy="292" rx="40" ry="7" fill="#7fb7ff" stroke="#26323a" stroke-width="2"/>
-<ellipse cx="320" cy="360" rx="82" ry="16" fill="none" stroke="#f2a900" stroke-width="10"/>
-<g fill="#fff"><circle cx="238" cy="360" r="4"/><circle cx="402" cy="360" r="4"/><circle cx="320" cy="376" r="4"/><circle cx="320" cy="344" r="4"/><circle cx="262" cy="371" r="4"/><circle cx="378" cy="371" r="4"/><circle cx="262" cy="349" r="4"/><circle cx="378" cy="349" r="4"/></g>
-<rect x="548" y="90" width="18" height="385" rx="4" fill="#b9c4c9" stroke="#26323a" stroke-width="2"/>
-<rect x="506" y="200" width="60" height="52" rx="4" fill="#26323a"/>
-<ellipse cx="500" cy="226" rx="12" ry="30" fill="#b9c4c9" stroke="#26323a" stroke-width="2"/>
-<rect x="150" y="480" width="340" height="26" rx="8" fill="#26323a"/>
-<ellipse cx="320" cy="480" rx="170" ry="14" fill="#3a4b55"/>
-<g stroke="#10222b" stroke-width="2"><path d="M216 67H250"/><path d="M216 146H265"/><path d="M95 76V95"/><path d="M216 258H275"/><path d="M216 360H238"/><path d="M126 495H150"/><path d="M584 120H566"/></g>
-<g fill="#0b7a75" stroke="#fff" stroke-width="3"><circle cx="200" cy="67" r="16"/><circle cx="200" cy="146" r="16"/><circle cx="95" cy="60" r="16"/><circle cx="200" cy="258" r="16"/><circle cx="200" cy="360" r="16"/><circle cx="110" cy="495" r="16"/><circle cx="600" cy="120" r="16"/></g>
-<g fill="#fff" font-size="18" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif"><text x="200" y="73">4</text><text x="200" y="152">5</text><text x="95" y="66">3</text><text x="200" y="264">6</text><text x="200" y="366">7</text><text x="110" y="501">1</text><text x="600" y="126">2</text></g>
-</svg></div></div>
-<div class="card"><div class="k">Parts list</div>
-<ol>
-<li><b>Base.</b> It holds the microscope steady. It gives a flat surface for the sample.</li>
-<li><b>Post and focus knob.</b> The post holds the head. Turn the knob to make the image sharp.</li>
-<li><b>Housing.</b> It holds the head parts. It keeps out dust and stray light.</li>
-<li><b>USB board.</b> It sends the video to a phone or a computer.</li>
-<li><b>Image sensor.</b> It changes light into a digital image.</li>
-<li><b>Objective lens.</b> It makes the object look larger.</li>
-<li><b>LED ring.</b> It lights the object.</li>
-</ol></div>
-<div class="bot">
-<div class="card"><div class="k">Typical values</div>
-<table><tr><td>Magnification</td><td>10x to 200x</td></tr><tr><td>Sensor</td><td>2 to 5 megapixels</td></tr><tr><td>Frame rate</td><td>30 frames per second</td></tr><tr><td>Light</td><td>8 white LEDs</td></tr><tr><td>Output</td><td>USB video class (UVC)</td></tr><tr><td>Power</td><td>5 V from the USB port</td></tr></table>
-<p style="font-size:10pt;margin-top:2mm">These are typical values for this type of device. Do not use them as data for one model.</p></div>
-<div class="card bars"><div class="k">Typical top magnification</div>
-<div class="r">Phone macro lens: about 15x<div class="hatch" style="width:2%"></div></div>
-<div class="r">Digital microscope: about 200x<div class="hatch" style="width:20%"></div></div>
-<div class="r">Optical microscope: about 1000x<div class="hatch" style="width:100%"></div></div>
-<p style="font-size:10pt">Hatched bars show typical values. They are not exact.</p></div>
-<div class="card"><div class="k">What each type can do</div>
-<table><tr><th></th><th>Digital</th><th>Optical</th><th>Phone lens</th></tr>
-<tr><td>Image on a screen</td><td>Yes</td><td>With adapter</td><td>Yes</td></tr>
-<tr><td>Save photo and video</td><td>Yes</td><td>With adapter</td><td>Yes</td></tr>
-<tr><td>Use with AR and VR</td><td>Yes</td><td>No</td><td>Yes</td></tr>
-<tr><td>Need an eyepiece</td><td>No</td><td>Yes</td><td>No</td></tr></table></div>
-</div></div>
-<div class="ft"><span>Digital microscope AR/VR project | COEP Technological University, Pune</span><span>Kshitij Rathi (612302049) and Shreya Patil (612302044)</span></div>
+<div class="rh"><span>Digital microscope AR/VR project</span><span>Technical report | Revision A</span></div>
+<div class="side"><div class="sn">1</div><h2>Overview</h2>
+<p>This report describes a 3D model and an AR and VR viewer for one digital microscope.</p>
+<p>Numbers in Figure 1 match Table 1.</p></div>
+<div class="body b1">
+<div><h1>All-in-one zoom digital microscope</h1><p class="sub">3D model, AR and VR viewer. Reference device: Steindorff S-VM701.</p></div>
+<div class="r1">
+<figure style="margin:0"><div class="figw"><img data-view="main" alt="Exploded 3D view of the digital microscope"><div id="cos"></div></div>
+<figcaption class="cap"><b>Figure 1.</b> Exploded view of the 3D model. Parts 1 and 2 are a generic stand.</figcaption></figure>
+<div><div class="tc"><b>Table 1.</b> Parts list</div>
+<table><colgroup><col style="width:9mm"><col style="width:42mm"><col></colgroup>
+<tr><th>No.</th><th>Part</th><th>Function</th></tr>
+<tr><td>1</td><td>Stand base (generic)</td><td>Holds the stand and the sample.</td></tr>
+<tr><td>2</td><td>Post, boom arm and 50 mm bracket (generic)</td><td>The bracket holds the lens body.</td></tr>
+<tr><td>3</td><td>HDMI camera module</td><td>Makes 1080p video at 60 fps with a Sony IMX307 sensor.</td></tr>
+<tr><td>4</td><td>Zoom lens body</td><td>Continuous zoom from 0.7x to 5.6x.</td></tr>
+<tr><td>5</td><td>Auxiliary objective</td><td>Sets the working distance. The model shows the 1.0x type.</td></tr>
+<tr><td>6</td><td>LED ring light</td><td>Lights the sample. It has no power cable.</td></tr>
+<tr><td>7</td><td>13.3 inch HD monitor</td><td>Shows the live image.</td></tr>
+<tr><td>8</td><td>HDMI cable</td><td>Sends the video from the camera to the monitor.</td></tr>
+</table>
+<div class="note"><b>Note</b>The product listing does not say that a stand is included.</div></div>
+</div>
+<div class="r2">
+<div><h3><span class="n">1.1</span>Summary</h3>
+<p>A digital microscope has a lens, a camera and a light. It sends the image to a screen. This project helps people learn the device and share its image.</p>
+<p>We made a 3D model of the S-VM701 from its datasheet and manual. A web page shows the model on any phone. You can take the model apart. You can also put it on a real table in AR.</p>
+<p>The page has a camera demo and a VR view. You do not need to install an app.</p></div>
+<div><h3><span class="n">1.2</span>Document control</h3>
+<table class="kv">
+<tr><td>Title</td><td>All-in-one zoom digital microscope: 3D model, AR and VR viewer</td></tr>
+<tr><td>Authors</td><td>Kshitij Rathi (MIS 612302049)<br>Shreya Patil (MIS 612302044)</td></tr>
+<tr><td>Institution</td><td>COEP Technological University, Pune</td></tr>
+<tr><td>Guide</td><td><span class="fld" contenteditable="true">&nbsp;</span></td></tr>
+<tr><td>Course</td><td><span class="fld" contenteditable="true">&nbsp;</span></td></tr>
+<tr><td>Date</td><td><span class="fld" contenteditable="true">&nbsp;</span></td></tr>
+<tr><td>Revision</td><td>A (first issue)</td></tr>
+</table></div>
+</div>
+</div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 1 of 4</span></div>
 </section>
 
 <!-- SHEET 2 -->
 <section class="sheet">
-<div class="hd"><div class="num">2</div><div><h1>What we use it for</h1><p>Six example uses. They are typical uses of a digital microscope. They are not our test results.</p></div><div class="tag">SHEET 2 OF 4<br>EXAMPLE USES</div></div>
-<div class="main s2">
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><rect width="200" height="80" fill="#1b7a3a"/><path d="M10 20H70V40H120M120 40V65H190M20 70H60M130 15H190" stroke="#d4a72c" stroke-width="3" fill="none"/><rect x="75" y="22" width="40" height="26" fill="#26323a"/><g fill="#d4a72c"><rect x="70" y="26" width="5" height="4"/><rect x="70" y="34" width="5" height="4"/><rect x="70" y="42" width="5" height="4"/><rect x="115" y="26" width="5" height="4"/><rect x="115" y="34" width="5" height="4"/><rect x="115" y="42" width="5" height="4"/><circle cx="160" cy="40" r="6"/><circle cx="25" cy="55" r="5"/></g></svg></div>
-<div class="k">Use A</div><h2>Circuit board check</h2><p>Look at solder joints and thin tracks.</p>
-<ul><li>Find a bad solder joint early.</li><li>Check that chip pins touch the pads.</li><li>Save a photo for the quality record.</li></ul>
-<div class="idea"><b>AR idea:</b> show the pin names on the live image.</div></div>
-
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><defs><linearGradient id="mg"><stop offset="0" stop-color="#cdd6da"/><stop offset="1" stop-color="#8d9ba1"/></linearGradient></defs><rect width="200" height="80" fill="url(#mg)"/><path d="M20 60L60 35L85 48L130 15L170 30" stroke="#26323a" stroke-width="3" fill="none"/><path d="M10 20H190M10 30H150M40 70H190" stroke="#fff" stroke-width="1.5" opacity=".8"/></svg></div>
-<div class="k">Use B</div><h2>Metal surface and wear</h2><p>Look at scratches, cracks and wear on metal parts.</p>
-<ul><li>Find small cracks on a machined surface.</li><li>Compare a worn part with a new part.</li><li>Measure the width of a scratch.</li></ul>
-<div class="idea"><b>AR idea:</b> show the allowed limit on the live image.</div></div>
-
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><path d="M30 40C60 5 140 5 170 40C140 75 60 75 30 40Z" fill="#4caf6a" stroke="#1b7a3a" stroke-width="3"/><path d="M30 40H170M70 40L90 20M70 40L90 60M110 40L130 22M110 40L130 58" stroke="#1b7a3a" stroke-width="2" fill="none"/></svg></div>
-<div class="k">Use C</div><h2>Biology and teaching</h2><p>Show a leaf, an insect or a thin slice to a whole class.</p>
-<ul><li>The whole class sees the same image on a screen.</li><li>Students save photos for their report.</li><li>No eyepiece is necessary.</li></ul>
-<div class="idea"><b>VR idea:</b> students look at the sample in a VR holder.</div></div>
-
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><rect width="200" height="80" fill="#f1e6d2"/><g stroke="#a0522d" stroke-width="5"><path d="M0 10H200M0 30H200M0 50H200M0 70H200"/></g><g stroke="#2f6f8f" stroke-width="5"><path d="M20 0V80M50 0V80M80 0V80M110 0V80M140 0V80M170 0V80"/></g></svg></div>
-<div class="k">Use D</div><h2>Fabric and paper</h2><p>Look at fibres and thread.</p>
-<ul><li>Count the threads in a fixed area.</li><li>Find a flaw in the weave.</li><li>Compare two types of fabric.</li></ul>
-<div class="idea"><b>AR idea:</b> show a grid on the live image.</div></div>
-
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><circle cx="100" cy="40" r="34" fill="#d4a72c" stroke="#8a6a12" stroke-width="3"/><circle cx="100" cy="40" r="26" fill="none" stroke="#8a6a12" stroke-width="2"/><path d="M90 52L100 24L110 52M93 44H107" stroke="#8a6a12" stroke-width="3" fill="none"/></svg></div>
-<div class="k">Use E</div><h2>Coins, ink and marks</h2><p>Look at small marks on coins, ink and tools.</p>
-<ul><li>Read the small text on a coin.</li><li>Compare two ink lines.</li><li>Keep a dated photo record.</li></ul>
-<div class="idea"><b>AR idea:</b> share the live image with a remote expert.</div></div>
-
-<div class="card"><div class="ill"><svg viewBox="0 0 200 80"><circle cx="100" cy="40" r="26" fill="none" stroke="#6b7a80" stroke-width="10" stroke-dasharray="7 5"/><circle cx="100" cy="40" r="20" fill="#9aa9b0"/><circle cx="100" cy="40" r="7" fill="#e3f2f1"/><circle cx="160" cy="40" r="14" fill="#b9c4c9" stroke="#6b7a80" stroke-width="3"/></svg></div>
-<div class="k">Use F</div><h2>Small parts and watch repair</h2><p>Look at gears, springs and screws.</p>
-<ul><li>Find a bent tooth on a gear.</li><li>Check a part before you fit it.</li><li>Show the repair steps to a trainee.</li></ul>
-<div class="idea"><b>VR idea:</b> the trainee sees the repair in a VR holder.</div></div>
+<div class="rh"><span>Digital microscope AR/VR project</span><span>Technical report | Revision A</span></div>
+<div class="side"><div class="sn">2</div><h2>Specifications</h2>
+<p>All values come from the maker's datasheet and manual.</p>
+<p>They describe the reference device. They are not our test results.</p></div>
+<div class="body b2">
+<div><div class="tc"><b>Table 2.</b> Datasheet values, Steindorff S-VM701</div>
+<table class="kv"><colgroup><col style="width:36mm"><col></colgroup>
+<tr class="g"><td colspan="2">Optics</td></tr>
+<tr><td>Zoom lens</td><td>0.7x to 5.6x, continuous zoom</td></tr>
+<tr><td>Lens body size</td><td>188 mm by 52 mm</td></tr>
+<tr><td>Bracket</td><td>Standard 50 mm interface</td></tr>
+<tr><td>Working distance</td><td>37.5 mm to 160 mm (set by the auxiliary objective)</td></tr>
+<tr><td>Numerical aperture</td><td>0.018 to 0.092 (1.0x objective)</td></tr>
+<tr><td>Resolution</td><td>18.6 µm to 3.65 µm (1.0x objective)</td></tr>
+<tr><td>Other objectives</td><td>Infinity-corrected biological or metallographic objectives, with an adapter</td></tr>
+<tr class="g"><td colspan="2">Camera</td></tr>
+<tr><td>Sensor</td><td>Sony IMX307 (C), 1/2.8 inch (5.57 mm by 3.13 mm)</td></tr>
+<tr><td>Pixel size</td><td>2.9 µm by 2.9 µm</td></tr>
+<tr><td>Video output</td><td>1920 by 1080 at 60 fps, HDMI 1.4</td></tr>
+<tr><td>Exposure time</td><td>0.01 ms to 1000 ms</td></tr>
+<tr><td>Storage</td><td>SD card: JPEG images and H.264 MP4 video</td></tr>
+<tr><td>Ports</td><td>USB (mouse), HDMI, SD, DC 12 V, status LED</td></tr>
+<tr><td>Power</td><td>12 V, 1 A adapter</td></tr>
+<tr class="g"><td colspan="2">Lighting</td></tr>
+<tr><td>Ring light</td><td>LED, adjustable brightness, no power cable</td></tr>
+<tr><td>Polarizing ring</td><td>LED, adjustable brightness, no power cable</td></tr>
+<tr><td>Brightness control</td><td>3-way wheel, or the software</td></tr>
+<tr class="g"><td colspan="2">Monitor</td></tr>
+<tr><td>Panel</td><td>13.3 inch IPS, 1920 by 1080, 16:9</td></tr>
+<tr><td>Brightness and contrast</td><td>350 nits, 1000:1</td></tr>
+<tr><td>Viewing angle</td><td>178 degrees, horizontal and vertical</td></tr>
+<tr><td>Response time</td><td>6 ms</td></tr>
+<tr><td>Case and power</td><td>Aluminum case, 12 V DC, no touch screen</td></tr>
+</table></div>
+<div><div class="tc"><b>Table 3.</b> Auxiliary objectives (for a 1/3 inch sensor)</div>
+<table>
+<tr><th>Objective</th><th>Working distance (mm)</th><th>Primary magnification</th><th>Field of view (mm)</th><th>NA</th></tr>
+<tr><td>0.5x</td><td>160</td><td>0.18x to 1.40x</td><td>34.28 to 4.28</td><td>0.009 to 0.046</td></tr>
+<tr><td>0.75x</td><td>105</td><td>0.26x to 2.10x</td><td>20.81 to 2.86</td><td>0.013 to 0.069</td></tr>
+<tr><td>1.0x</td><td>80</td><td>0.35x to 2.80x</td><td>17.14 to 2.14</td><td>0.018 to 0.092</td></tr>
+<tr><td>1.5x</td><td>51.5</td><td>0.53x to 4.20x</td><td>11.43 to 1.43</td><td>0.026 to 0.138</td></tr>
+<tr><td>2.0x</td><td>37.5</td><td>0.70x to 5.60x</td><td>8.57 to 1.07</td><td>0.035 to 0.182</td></tr>
+</table>
+<p class="cap">Field of view and NA: first value is low zoom, second value is high zoom. Coaxial light can cause vignetting at low zoom.</p>
+<div class="charts"><div id="ch1"></div><div id="ch2"></div></div>
+<p class="cap"><b>Figure 2.</b> Working distance and primary magnification for each auxiliary objective. A smaller working distance gives a higher magnification.</p></div>
+<div class="wide"><h3><span class="n">2.1</span>Software functions (built-in XCamView)</h3>
+<div class="fn">
+<div><h4>Image controls</h4><p>Exposure (automatic or manual), gain, white balance (automatic, manual or ROI), sharpness, 3D denoise, saturation, contrast, brightness, gamma. Anti-flicker for 50 Hz and 60 Hz light.</p></div>
+<div><h4>Measurement</h4><p>Point, line, angle, rectangle, circle, ellipse, annulus, polygon, curve, arc, scale bar, text and arrow. Calibrate with a micrometer. Export the results to a CSV file. Save the marks as a layer, or burn them into the image.</p></div>
+<div><h4>Display and files</h4><p>Zoom in the video window up to 10x. Mirror, flip, freeze, color or gray, cross line. Browse images and play video from the SD card. Ten interface languages.</p></div>
+</div></div>
 </div>
-<div class="ft"><span>Digital microscope AR/VR project | COEP Technological University, Pune</span><span>Kshitij Rathi (612302049) and Shreya Patil (612302044)</span></div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 2 of 4</span></div>
 </section>
 
 <!-- SHEET 3 -->
 <section class="sheet">
-<div class="hd"><div class="num">3</div><div><h1>Why AR and VR, and what comes next</h1><p>AR adds digital objects to the real world. VR puts you in a computer world. Both make a digital microscope more useful.</p></div><div class="tag">SHEET 3 OF 4<br>THE PLAN</div></div>
-<div class="main s3">
-<div style="display:flex;flex-direction:column;gap:5mm">
-<div class="card t"><div class="k">Reason 1</div><h2>See it big</h2><p>The image shows on a large screen or in a headset.</p></div>
-<div class="card t"><div class="k">Reason 2</div><h2>Add information</h2><p>AR puts measurements and labels on the live image.</p></div>
-<div class="card t"><div class="k">Reason 3</div><h2>Share the view</h2><p>A remote expert sees the same image as the user.</p></div>
-<div class="card t"><div class="k">Reason 4</div><h2>Train safely</h2><p>Students practise on a safe sample. Nothing can break.</p></div>
+<div class="rh"><span>Digital microscope AR/VR project</span><span>Technical report | Revision A</span></div>
+<div class="side"><div class="sn">3</div><h2>Detail views</h2>
+<p>Six close views of the 3D model.</p>
+<p>Each view shows one group of datasheet facts.</p></div>
+<div class="body b3">
+<div class="fv"><div class="im"><img data-view="ports" alt="Camera ports"></div>
+<p class="cap"><b>Figure 3a.</b> Camera ports</p>
+<ul><li>USB: connect a mouse to control the XCamView software.</li><li>HDMI: 1080p video at 60 fps (HDMI 1.4).</li><li>SD slot: stores JPEG images and MP4 video.</li><li>DC 12 V input and a status LED.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="zoom" alt="Zoom lens body"></div>
+<p class="cap"><b>Figure 3b.</b> Zoom lens body</p>
+<ul><li>Continuous zoom from 0.7x to 5.6x.</li><li>The body is 188 mm long and 52 mm wide.</li><li>With the 1.0x objective, NA is 0.018 to 0.092.</li><li>With the 1.0x objective, resolution is 18.6 µm to 3.65 µm.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="aux" alt="Auxiliary objective and LED ring"></div>
+<p class="cap"><b>Figure 3c.</b> Auxiliary objective and LED ring</p>
+<ul><li>Five objectives: 0.5x, 0.75x, 1.0x, 1.5x and 2.0x.</li><li>The magnetic LED ring has no power cable.</li><li>Set the light with the wheel or with the software.</li><li>A polarizing ring light is also listed.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="monitor" alt="Monitor"></div>
+<p class="cap"><b>Figure 3d.</b> 13.3 inch HD monitor</p>
+<ul><li>IPS panel, 1920 by 1080, 16:9.</li><li>350 nits, contrast 1000:1, viewing angle 178 degrees.</li><li>Aluminum case. Power: 12 V DC.</li><li>The screen picture is an illustration.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="wd" alt="Working distance"></div>
+<p class="cap"><b>Figure 3e.</b> Working distance</p>
+<ul><li>With the 1.0x objective, the working distance is 80 mm.</li><li>Field of view: 17.14 mm at low zoom, 2.14 mm at high zoom.</li><li>The sample is an illustration.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="stand" alt="Stand and bracket"></div>
+<p class="cap"><b>Figure 3f.</b> Stand and bracket (generic)</p>
+<ul><li>The lens body has a standard 50 mm bracket interface.</li><li>The listing does not say that a stand is included.</li><li>This boom stand is our own generic design.</li><li>Use a stand that holds a 50 mm bracket.</li></ul></div>
 </div>
-<div style="display:flex;flex-direction:column;gap:5mm">
-<div class="card"><div class="k">How the data moves</div>
-<div class="step"><i>1</i>Sample</div><div class="step"><i>2</i>Lens and LED light</div><div class="step"><i>3</i>Image sensor</div><div class="step"><i>4</i>USB board</div><div class="step"><i>5</i>Phone or computer</div><div class="step"><i>6</i>AR overlay or VR holder</div></div>
-<div class="card" style="flex:1"><div class="k">Proposed plan</div>
-<ol><li><b>Phase 1.</b> Web viewer with 3D, AR, camera and VR. This is done.</li><li><b>Phase 2.</b> Test with a real USB microscope. Set the scale with a ruler.</li><li><b>Phase 3.</b> Use two cameras for true stereo depth in VR.</li><li><b>Phase 4.</b> Test in a class. Ask students for feedback.</li></ol></div>
-</div>
-<div style="display:flex;flex-direction:column;gap:5mm">
-<div class="card"><div class="k">Key numbers</div>
-<div class="stat"><b>7</b>parts in the 3D model</div><div class="stat"><b>4</b>modes: 3D, AR, camera, VR</div><div class="stat"><b>0</b>apps to install</div><div class="stat"><b>4</b>sheets in this report</div></div>
-<div class="card" style="flex:1"><div class="k">Credits</div>
-<p><b>Kshitij Rathi</b><br>MIS 612302049</p><p><b>Shreya Patil</b><br>MIS 612302044</p>
-<p>COEP Technological University, Pune</p>
-<p>Guide: <span class="fld" contenteditable="true">&nbsp;</span></p>
-<p>Course: <span class="fld" contenteditable="true">&nbsp;</span></p>
-<p>Date: <span class="fld" contenteditable="true">&nbsp;</span></p></div>
-</div>
-<div class="warn" style="grid-column:1/4"><b>Limits.</b> This project uses one camera. The VR view is flat and does not show true depth. A phone camera is not a real microscope, and its zoom is digital. The scale is true only after you set it with a known length.</div>
-</div>
-<div class="ft"><span>Digital microscope AR/VR project | COEP Technological University, Pune</span><span>Kshitij Rathi (612302049) and Shreya Patil (612302044)</span></div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 3 of 4</span></div>
 </section>
 
 <!-- SHEET 4 -->
 <section class="sheet">
-<div class="hd"><div class="num">4</div><div><h1>Scan and step inside</h1><p>Point your phone camera at a code. Tap the link. You do not need to install an app.</p></div><div class="tag">SHEET 4 OF 4<br>SCAN</div></div>
-<div class="main s4">
+<div class="rh"><span>Digital microscope AR/VR project</span><span>Technical report | Revision A</span></div>
+<div class="side"><div class="sn">4</div><h2>AR and VR viewer</h2>
+<p>This sheet shows what the viewer does and how to open it.</p>
+<p>Scan a code with your phone camera. Tap the link.</p></div>
+<div class="body b4">
+<div class="col">
+<div><h3><span class="n">4.1</span>What the viewer does</h3>
+<div class="tc"><b>Table 4.</b> Viewer modules</div>
+<table><colgroup><col style="width:24mm"><col><col style="width:40mm"></colgroup>
+<tr><th>Module</th><th>Function</th><th>Works on</th></tr>
+<tr><td>3D model</td><td>Turn the model. Take it apart with a slider. Tap a number to read about a part.</td><td>Any phone or laptop</td></tr>
+<tr><td>AR</td><td>Put the model at real size on a table or the floor.</td><td>Android with Chrome and ARCore. iPhone and iPad with Safari.</td></tr>
+<tr><td>Camera demo</td><td>The phone camera acts as a microscope. It has zoom, freeze, a scale and a two-point measurement.</td><td>Any phone with a camera</td></tr>
+<tr><td>VR view</td><td>The camera image shows twice, side by side, for a phone VR holder.</td><td>A phone and a VR holder</td></tr>
+</table></div>
+<div><h3><span class="n">4.2</span>How the video moves</h3>
+<div class="fl">In the real device</div>
+<div class="flow"><div>Sample</div><i>&rarr;</i><div>Auxiliary objective</div><i>&rarr;</i><div>Zoom lens</div><i>&rarr;</i><div>Sensor and image processor</div><i>&rarr;</i><div>HDMI output</div><i>&rarr;</i><div>Monitor or SD card</div></div>
+<div class="fl">Proposed extension</div>
+<div class="flow p"><div>HDMI capture adapter</div><i>&rarr;</i><div>Phone or PC</div><i>&rarr;</i><div>AR labels or VR holder</div></div>
+<p class="cap"><b>Figure 4.</b> Video path. The S-VM701 sends video through HDMI. The USB port is for a mouse only. A capture adapter is not part of the device.</p></div>
+<div class="note c"><b>Limits</b>We did not test the real device. The 3D model comes from the datasheet and the manual. The stand, the cable, the zoom control and the port layout are our own design. The phone camera demo does not show the image of the real microscope. The VR view is flat. It does not show true depth.</div>
+<div><h3><span class="n">4.3</span>Next steps</h3>
+<table><colgroup><col style="width:9mm"><col><col style="width:24mm"></colgroup>
+<tr><th>No.</th><th>Task</th><th>Status</th></tr>
+<tr><td>1</td><td>Web viewer with 3D model, AR, camera demo and VR view</td><td>Done</td></tr>
+<tr><td>2</td><td>Test with the real S-VM701. Compare it with the 3D model.</td><td>Open</td></tr>
+<tr><td>3</td><td>Send the live HDMI image to the web page with a capture adapter.</td><td>Open</td></tr>
+<tr><td>4</td><td>Add AR labels and measurement on the live image.</td><td>Open</td></tr>
+<tr><td>5</td><td>Test in a class. Ask the students for feedback.</td><td>Open</td></tr>
+</table></div>
+</div>
+<div class="col">
+<div><h3><span class="n">4.4</span>How to open the viewer</h3>
 <div class="qrs">
-<div class="card qc t"><div class="q" data-q="ar"></div><div><div class="k">Code 1 | AR</div><h2>See it in your room</h2><ol><li>Scan the code.</li><li>Tap View in your room.</li><li>Move the phone slowly over a flat surface.</li></ol></div></div>
-<div class="card qc t"><div class="q" data-q="scope"></div><div><div class="k">Code 2 | Camera</div><h2>Use your camera as a microscope</h2><ol><li>Scan the code.</li><li>Tap Start camera. Allow access.</li><li>Hold the phone close to a small object.</li></ol></div></div>
-<div class="card qc t"><div class="q" data-q="vr"></div><div><div class="k">Code 3 | VR</div><h2>Use the VR view</h2><ol><li>Scan the code.</li><li>Tap Start VR view.</li><li>Put the phone in a VR holder.</li></ol></div></div>
+<div><div data-q="ar"></div><div class="t">Code 1. AR</div><ol><li>Scan the code.</li><li>Tap View in your room.</li><li>Move the phone slowly over a flat surface.</li></ol></div>
+<div><div data-q="scope"></div><div class="t">Code 2. Camera demo</div><ol><li>Scan the code.</li><li>Tap Start camera. Allow access.</li><li>Hold the phone close to a small object.</li></ol></div>
+<div><div data-q="vr"></div><div class="t">Code 3. VR view</div><ol><li>Scan the code.</li><li>Tap Start VR view.</li><li>Put the phone in a VR holder.</li></ol></div>
+</div></div>
+<div><div class="fl">Web address</div><div class="u"></div></div>
+<div class="note c"><b>Caution</b>Use Chrome on Android or Safari on iPhone. Do not open the link inside a chat or social app. AR needs a phone that supports it. On Android, Google Play Services for AR must be installed.</div>
+<div class="src"><h3><span class="n">4.5</span>Sources and tools</h3>
+<ul>
+<li>Device data: the NYMCS-VM701 manual and the product listing of the New York Microscope Company (microscopeinternational.com), read on 28 October 2026.</li>
+<li>The 3D model and all pictures are original work by the authors. The screen picture and the sample are illustrations.</li>
+<li>Tools: three.js (MIT licence), model-viewer by Google (Apache 2.0), qrcode-generator (MIT licence).</li>
+</ul>
+<p style="margin-top:4mm">Prepared by Kshitij Rathi (MIS 612302049) and Shreya Patil (MIS 612302044).</p>
+<p>Guide's signature: <span class="fld" contenteditable="true">&nbsp;</span></p></div>
 </div>
-<div class="defs">
-<div class="card"><div class="k">AR</div><p><b>Augmented reality.</b> Digital objects show in the real world, on the screen of your phone.</p></div>
-<div class="card"><div class="k">VR</div><p><b>Virtual reality.</b> A computer world fills your view. Use a headset or a phone in a holder.</p></div>
-<div class="card"><div class="k">MR</div><p><b>Mixed reality.</b> Digital objects react to the real room. This project does not use MR.</p></div>
 </div>
-<div class="warn"><b>Caution.</b> Use Chrome on Android or Safari on iPhone. Do not open the link inside a chat or social app. AR needs a phone that supports it. On Android, Google Play Services for AR must be installed.</div>
-<div class="card"><div class="k">Web address</div><div class="u"></div>
-<p style="margin-top:2mm;font-size:10.5pt">Tools: three.js (MIT licence), model-viewer by Google (Apache 2.0), qrcode-generator (MIT licence). The 3D model and all drawings are original work.</p></div>
-</div>
-<div class="ft"><span>Digital microscope AR/VR project | COEP Technological University, Pune</span><span>Kshitij Rathi (612302049) and Shreya Patil (612302044)</span></div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 4 of 4</span></div>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
@@ -213,11 +280,91 @@ function qrSvg(text){
   const q=qrcode(0,'M');q.addData(text);q.make();
   const n=q.getModuleCount();let d='';
   for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+='M'+c+' '+r+'h1v1h-1z';
-  return '<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" shape-rendering="crispEdges"><rect x="-2" y="-2" width="'+(n+4)+'" height="'+(n+4)+'" fill="#fff"/><path d="'+d+'" fill="#10222b"/></svg>';
+  return '<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" shape-rendering="crispEdges"><rect x="-2" y="-2" width="'+(n+4)+'" height="'+(n+4)+'" fill="#fff"/><path d="'+d+'" fill="#1b1d20"/></svg>';
 }
 document.querySelectorAll('[data-q]').forEach(e=>{e.innerHTML=qrSvg(base+'?mode='+e.dataset.q)});
 document.querySelectorAll('.u').forEach(e=>{e.textContent=base});
 if(!location.protocol.startsWith('http'))document.getElementById('local').hidden=false;
+
+function chart(title,rows,max,ticks,unit){
+  const W=300,L=40,R=14,T=24,rowH=28,H=T+rows.length*rowH+32;
+  const sx=v=>L+(W-L-R)*v/max;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Helvetica Neue,Arial,sans-serif">';
+  s+='<text x="0" y="12" font-size="11" font-weight="600" fill="#1b1d20">'+title+'</text>';
+  ticks.forEach(t=>{
+    const x=sx(t);
+    s+='<line x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(T+rows.length*rowH)+'" stroke="#d6d9dd" stroke-width="1"/>';
+    s+='<text x="'+x+'" y="'+(T+rows.length*rowH+12)+'" font-size="9" text-anchor="middle" fill="#5d636b">'+t+'</text>';
+  });
+  s+='<text x="'+(L+(W-L-R)/2)+'" y="'+(H-3)+'" font-size="9" text-anchor="middle" fill="#5d636b">'+unit+'</text>';
+  rows.forEach((r,i)=>{
+    const y=T+i*rowH+5;
+    s+='<text x="'+(L-6)+'" y="'+(y+12)+'" font-size="10" text-anchor="end" fill="#1b1d20">'+r[0]+'</text>';
+    s+='<rect x="'+sx(r[1])+'" y="'+y+'" width="'+(sx(r[2])-sx(r[1]))+'" height="16" fill="#1f4e79"/>';
+    s+='<text x="'+(sx(r[2])+4)+'" y="'+(y+12)+'" font-size="9" fill="#1b1d20">'+r[3]+'</text>';
+  });
+  return s+'</svg>';
+}
+document.getElementById('ch1').innerHTML=chart('Working distance',[['0.5x',0,160,'160'],['0.75x',0,105,'105'],['1.0x',0,80,'80'],['1.5x',0,51.5,'51.5'],['2.0x',0,37.5,'37.5']],200,[0,50,100,150,200],'millimetres');
+document.getElementById('ch2').innerHTML=chart('Primary magnification',[['0.5x',.18,1.4,'0.18 to 1.40'],['0.75x',.26,2.1,'0.26 to 2.10'],['1.0x',.35,2.8,'0.35 to 2.80'],['1.5x',.53,4.2,'0.53 to 4.20'],['2.0x',.7,5.6,'0.70 to 5.60']],8,[0,2,4,6,8],'low zoom to high zoom (x)');
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import {build,makeEnvironment} from './microscope.js';
+const VIEWS=[
+ {id:'main',w:1600,h:1000,fov:30,t:1,pos:[1.22,.62,1.14],tgt:[.27,.32,-.06],co:true},
+ {id:'ports',w:1200,h:600,fov:28,t:0,pos:[-.10,.41,-.16],tgt:[-.01,.365,.0]},
+ {id:'zoom',w:1200,h:600,fov:28,t:0,pos:[.27,.29,.37],tgt:[0,.24,.055]},
+ {id:'aux',w:1200,h:600,fov:28,t:0,pos:[.17,.085,.27],tgt:[0,.125,.055]},
+ {id:'monitor',w:1200,h:600,fov:28,t:0,pos:[.12,.15,.55],tgt:[.33,.1,-.03]},
+ {id:'wd',w:1200,h:600,fov:28,t:0,pos:[.27,.085,.22],tgt:[0,.075,.055]},
+ {id:'stand',w:1200,h:600,fov:28,t:0,pos:[.28,.32,.26],tgt:[0,.29,-.03]}
+];
+const btn=document.getElementById('pbtn'),st=document.getElementById('rstat');
+async function run(){
+  try{
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    const scene=new THREE.Scene();scene.environment=makeEnvironment(renderer);
+    const sun=new THREE.DirectionalLight(0xffffff,1.8);
+    sun.position.set(.7,1.5,1);sun.target.position.set(.2,0,0);
+    sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+    Object.assign(sun.shadow.camera,{left:-1,right:1,top:1,bottom:-1,near:.3,far:4});
+    sun.shadow.camera.updateProjectionMatrix();
+    sun.shadow.bias=-.0004;sun.shadow.normalBias=.002;
+    scene.add(sun,sun.target);
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.ShadowMaterial({opacity:.25}));
+    ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+    const m=build();scene.add(m.rig);
+    const cam=new THREE.PerspectiveCamera(30,1,.02,30);
+    for(const v of VIEWS){
+      m.setExplode(v.t);scene.updateMatrixWorld(true);
+      renderer.setSize(v.w,v.h,false);
+      cam.fov=v.fov;cam.aspect=v.w/v.h;
+      cam.position.set(v.pos[0],v.pos[1],v.pos[2]);cam.lookAt(v.tgt[0],v.tgt[1],v.tgt[2]);
+      cam.updateProjectionMatrix();cam.updateMatrixWorld();
+      renderer.render(scene,cam);
+      const url=renderer.domElement.toDataURL('image/png');
+      document.querySelectorAll('[data-view="'+v.id+'"]').forEach(img=>{img.src=url});
+      if(v.co){
+        const box=document.getElementById('cos');box.innerHTML='';
+        m.parts.forEach((p,i)=>{
+          const w=p.anchor.clone();p.g.localToWorld(w);w.project(cam);
+          const s=document.createElement('span');s.className='co';s.textContent=i+1;
+          s.style.left=((w.x+1)/2*100)+'%';s.style.top=((1-w.y)/2*100)+'%';
+          box.appendChild(s);
+        });
+      }
+      await new Promise(r=>setTimeout(r,30));
+    }
+    st.textContent='Pictures ready.';btn.disabled=false;
+  }catch(e){
+    st.textContent='The 3D pictures did not build: '+e.message+'. Open this page from the hosted address.';
+  }
+}
+run();
 </script>
 </body>
 </html>
