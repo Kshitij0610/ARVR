@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Microscope AR/VR</title>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<style>
+:root{--ink:#10222b;--teal:#0b7a75;--amber:#f2a900;--bg:#f4f7f7;--line:#d5dfe1}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:var(--ink);color:#fff;padding:14px 16px}
+header b{font-size:21px}
+header span{display:block;color:#9fd6d2;font-size:14px}
+nav{display:flex;gap:6px;padding:10px;background:#fff;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{flex:1;min-width:92px;padding:12px 8px;border:2px solid var(--ink);background:#fff;border-radius:10px;font-weight:600;font-size:15px;font-family:inherit;color:var(--ink)}
+nav button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+main{max-width:900px;margin:auto;padding:14px}
+.panel{display:none}
+.panel.on{display:block}
+h2{margin:6px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+#stage{position:relative;height:min(62vh,520px);background:linear-gradient(#fff,#e1ebeb);border-radius:14px;border:1px solid var(--line);overflow:hidden;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+.lab{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--teal);color:#fff;border:2px solid #fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0}
+.lab.on,.chip.on{background:var(--amber);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{border:1px solid var(--ink);background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;font-family:inherit}
+.btn{display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:var(--teal);color:#fff;font-size:18px;font-weight:700;font-family:inherit}
+.btn.alt{background:var(--ink)}
+.row{display:flex;gap:8px}
+input[type=range]{width:100%;height:36px}
+label{display:block;font-weight:600}
+.warn{background:#fff4d6;border-left:6px solid var(--amber);padding:10px 12px;border-radius:8px;margin:12px 0}
+.scope{position:relative;background:#000;border-radius:14px;overflow:hidden;aspect-ratio:4/3}
+.scope video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center}
+.scope canvas{position:absolute;inset:0;width:100%;height:100%}
+#vrstage{position:relative;display:flex;background:#000;aspect-ratio:2/1;border-radius:14px;overflow:hidden}
+#vrstage:fullscreen{aspect-ratio:auto;border-radius:0}
+.eye{flex:1;overflow:hidden;position:relative}
+.eye video{width:100%;height:100%;object-fit:cover;transform-origin:center}
+.eye::after{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px;border:2px solid #f2a900;border-radius:50%}
+.hud{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+.hud button{padding:10px 16px;border-radius:10px;border:0;font-weight:700;font-size:18px}
+#mv{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none}
+footer{text-align:center;font-size:13px;color:#5b6c73;padding:20px}
+</style>
+</head>
+<body>
+<header><b>Digital microscope</b><span>AR and VR project | COEP Technological University, Pune</span></header>
+<nav id="tabs">
+<button data-t="d3" class="on">3D and AR</button>
+<button data-t="scope">Microscope</button>
+<button data-t="vr">VR view</button>
+<button data-t="help">Help</button>
+</nav>
+<main>
+
+<section id="d3" class="panel on">
+<h2>Digital microscope in 3D</h2>
+<p>Turn the model with one finger. Move the slider to take the parts apart. Tap a number to read about a part.</p>
+<div id="stage"></div>
+<label>Parts apart<input id="exp" type="range" min="0" max="100" value="0"></label>
+<div class="chips" id="chips"></div>
+<div class="card" id="info">Tap a number to see the part name.</div>
+<button class="btn" id="arBtn">View in your room</button>
+<p id="arMsg" class="warn" hidden></p>
+<p>The AR model shows the same slider position. Set the slider first. Wait 2 seconds. Then tap the button.</p>
+<model-viewer id="mv" ar ar-modes="webxr quick-look" ar-scale="auto" loading="eager" camera-controls alt="Digital microscope"></model-viewer>
+</section>
+
+<section id="scope" class="panel">
+<h2>Microscope view</h2>
+<p>Use the phone camera as a digital microscope. Hold the phone close to a small object.</p>
+<div class="scope" id="sc"><video id="v1" playsinline muted autoplay></video><canvas id="ov"></canvas></div>
+<label>Zoom <b class="zt">1.0x</b><input id="zoom" type="range" min="1" max="8" step="0.1" value="1"></label>
+<div class="row"><button class="btn" id="camBtn">Start camera</button><button class="btn alt" id="frz">Freeze</button></div>
+<div class="row"><button class="btn alt" id="setScale">Set scale</button><button class="btn alt" id="save">Save photo</button></div>
+<div class="card" id="meas">Tap two points on the image to measure.</div>
+<div class="warn"><b>Note.</b> This is digital zoom. A phone camera is not a real microscope. To get mm, tap two points on a ruler. Then tap Set scale and enter the true length. Keep the same distance to the object after you set the scale.</div>
+</section>
+
+<section id="vr" class="panel">
+<h2>VR view</h2>
+<p>Put the phone in a VR holder. Each half shows the same camera image. This view is flat. It does not show true depth.</p>
+<div id="vrstage">
+<div class="eye"><video id="vL" playsinline muted autoplay></video></div>
+<div class="eye"><video id="vR" playsinline muted autoplay></video></div>
+<div class="hud"><button id="zm">-</button><button id="zp">+</button><button id="vx">Exit</button></div>
+</div>
+<label>Zoom <b class="zt">1.0x</b><input id="zoom2" type="range" min="1" max="8" step="0.1" value="1"></label>
+<button class="btn" id="vrBtn">Start VR view</button>
+<p>Turn the phone to landscape. On iPhone, full screen may not be available. Use the preview.</p>
+</section>
+
+<section id="help" class="panel">
+<h2>Help</h2>
+<div class="card"><b>How to see the microscope in your room</b>
+<ol><li>Open this page in Chrome (Android) or Safari (iPhone or iPad).</li><li>Go to the tab 3D and AR.</li><li>Tap View in your room.</li><li>Move the phone slowly over a flat surface.</li><li>Tap the surface to put the model there.</li></ol></div>
+<div class="warn"><b>If AR does not start</b>
+<ul><li>Do not open the link inside a chat or social app. Open it in the browser.</li><li>On Android, update Google Play Services for AR and Chrome.</li><li>Some phones do not support AR. Use the 3D view on those phones.</li></ul></div>
+<div class="warn"><b>If the camera does not start</b>
+<ul><li>Allow camera access in the browser.</li><li>The page address must start with https.</li><li>Close other apps that use the camera.</li></ul></div>
+</section>
+</main>
+<footer>Made by Kshitij Rathi (612302049) and Shreya Patil (612302044)<br>Tools: three.js, model-viewer</footer>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
+const $=s=>document.querySelector(s);
+
+/* tabs */
+function show(t){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===t));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(t==='scope'||t==='vr')attach();
+  resize();sizeOv();
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+
+/* 3D scene */
+const stage=$('#stage');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(40,1,.1,100);
+cam.position.set(4.6,3.2,7);
+const ctl=new OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,1.2,0);ctl.enableDamping=true;ctl.autoRotate=true;ctl.autoRotateSpeed=1.2;
+ctl.minDistance=3;ctl.maxDistance=14;
+ctl.addEventListener('start',()=>{ctl.autoRotate=false});
+scene.add(new THREE.HemisphereLight(0xffffff,0x8899aa,1.2));
+const dl=new THREE.DirectionalLight(0xffffff,2.2);dl.position.set(3,6,4);scene.add(dl);
+
+const std=(c,r,m,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:r,metalness:m},o));
+const M={
+  dark:std(0x26323a,.6,.3),metal:std(0xb9c4c9,.35,.8),teal:std(0x0b7a75,.45,.1,{side:THREE.DoubleSide}),
+  pcb:std(0x1b7a3a,.6,.1),gold:std(0xd4a72c,.3,.9),sensor:std(0x111820,.2,.6),
+  glass:std(0x7fb7ff,.05,.1,{transparent:true,opacity:.65}),
+  led:std(0xf2a900,.4,.1,{emissive:0xfff0b0,emissiveIntensity:1.2})
+};
+const mesh=(g,m,x=0,y=0,z=0)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);return o};
+const cyl=(r,h,s=48,open=false)=>new THREE.CylinderGeometry(r,r,h,s,1,open);
+const box=(x,y,z)=>new THREE.BoxGeometry(x,y,z);
+
+const defs=[
+ {n:'Base',t:'The base holds the microscope steady. It gives a flat surface for the sample.',d:[0,-.7,0],a:[.85,0,0],
+  b:g=>{g.add(mesh(cyl(.9,.12,64),M.dark,0,.06,0));g.add(mesh(cyl(.8,.02,64),M.metal,0,.13,0));}},
+ {n:'Post and focus knob',t:'The post holds the head. Turn the knob to move the head up or down. This makes the image sharp.',d:[0,0,-1.4],a:[0,1,0],
+  b:g=>{g.add(mesh(cyl(.07,2.28),M.metal,0,1.26,-.35));g.add(mesh(box(.24,.3,.45),M.dark,0,1.6,-.175));
+   [.2,-.2].forEach(x=>{const k=mesh(cyl(.14,.1,32),M.metal,x,1.6,-.3);k.rotation.z=Math.PI/2;g.add(k);});}},
+ {n:'Housing',t:'The housing holds the head parts. It keeps out dust and stray light.',d:[1.6,.3,0],a:[.35,.35,0],
+  b:g=>{g.add(mesh(cyl(.33,1.1,48,true),M.teal,0,1.6,.35));g.add(mesh(cyl(.33,.05),M.teal,0,2.175,.35));}},
+ {n:'USB board',t:'The board sends the video to a phone or a computer through the USB cable.',d:[0,1.1,0],a:[.3,.05,0],
+  b:g=>{g.add(mesh(box(.4,.03,.5),M.pcb,0,1.85,.35));g.add(mesh(box(.1,.03,.1),M.dark,-.1,1.88,.3));
+   g.add(mesh(box(.12,.05,.14),M.metal,0,1.86,.62));
+   const c=mesh(cyl(.03,1,16),M.dark,0,1.86,1.2);c.rotation.x=Math.PI/2;g.add(c);}},
+ {n:'Image sensor',t:'The sensor changes light into a digital image. A typical sensor has 2 to 5 million pixels.',d:[0,.55,0],a:[.28,0,0],
+  b:g=>{g.add(mesh(box(.3,.04,.3),M.pcb,0,1.65,.35));g.add(mesh(box(.16,.02,.16),M.sensor,0,1.625,.35));}},
+ {n:'Objective lens',t:'The lens makes the object look larger. It sets the magnification.',d:[0,-.5,0],a:[.25,0,0],
+  b:g=>{g.add(mesh(cyl(.2,.4),M.metal,0,1.25,.35));g.add(mesh(cyl(.17,.02),M.glass,0,1.04,.35));}},
+ {n:'LED ring',t:'The LED ring lights the object. Good light makes a clear image.',d:[0,-.9,0],a:[.32,-.05,0],
+  b:g=>{const r=mesh(new THREE.TorusGeometry(.27,.045,16,48),M.led,0,.98,.35);r.rotation.x=Math.PI/2;g.add(r);}}
+];
+const root=new THREE.Group();scene.add(root);
+const parts=defs.map((d,i)=>{const g=new THREE.Group();g.name=d.n;d.b(g);root.add(g);return {...d,g,i,off:new THREE.Vector3(...d.a)}});
+
+let sel=-1;
+const helper=new THREE.BoxHelper(root,0xf2a900);helper.visible=false;scene.add(helper);
+parts.forEach(p=>{
+  const l=document.createElement('button');l.className='lab';l.textContent=p.i+1;l.onclick=()=>pick(p.i);stage.appendChild(l);p.el=l;
+  const c=document.createElement('button');c.className='chip';c.textContent=(p.i+1)+' '+p.n;c.onclick=()=>pick(p.i);$('#chips').appendChild(c);p.chip=c;
+});
+function pick(i){
+  sel=i;
+  parts.forEach(p=>{p.el.classList.toggle('on',p.i===i);p.chip.classList.toggle('on',p.i===i)});
+  const p=parts[i];
+  $('#info').innerHTML='<b>'+(i+1)+'. '+p.n+'</b><br>'+p.t;
+  helper.setFromObject(p.g);helper.visible=true;
+}
+
+let t=0;
+function apply(){parts.forEach(p=>p.g.position.set(p.d[0]*t,p.d[1]*t,p.d[2]*t))}
+$('#exp').addEventListener('input',e=>{t=e.target.value/100;apply();ready=false});
+$('#exp').addEventListener('change',()=>queueExport());
+
+/* AR model: built in the browser, no file needed */
+const mv=$('#mv');let timer,ready=false;
+function queueExport(){ready=false;clearTimeout(timer);timer=setTimeout(doExport,500)}
+async function doExport(){
+  try{
+    const w=new THREE.Group();w.add(root.clone(true));w.scale.setScalar(.1);
+    const buf=await new GLTFExporter().parseAsync(w,{binary:true});
+    const old=mv.src;
+    mv.src=URL.createObjectURL(new Blob([buf],{type:'model/gltf-binary'}));
+    if(old&&old.startsWith('blob:'))setTimeout(()=>URL.revokeObjectURL(old),3000);
+  }catch(e){msg('The AR model did not build. '+e.message)}
+}
+mv.addEventListener('load',()=>{ready=true});
+function msg(s){const m=$('#arMsg');m.textContent=s;m.hidden=false}
+$('#arBtn').onclick=()=>{
+  if(!ready){msg('Wait 2 seconds. The AR model is not ready.');return}
+  if(mv.canActivateAR){$('#arMsg').hidden=true;mv.activateAR()}
+  else msg('AR is not available on this device. Use Chrome on Android or Safari on iPhone. Open the page in the browser, not in a chat app.');
+};
+
+function resize(){
+  const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+  renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
+}
+addEventListener('resize',resize);new ResizeObserver(resize).observe(stage);
+const v3=new THREE.Vector3(),bx=new THREE.Box3();
+renderer.setAnimationLoop(()=>{
+  const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+  ctl.update();
+  if(sel>=0)helper.setFromObject(parts[sel].g);
+  parts.forEach(p=>{
+    bx.setFromObject(p.g).getCenter(v3).add(p.off).project(cam);
+    p.el.style.left=((v3.x+1)/2*w)+'px';p.el.style.top=((1-v3.y)/2*h)+'px';
+  });
+  renderer.render(scene,cam);
+});
+resize();apply();queueExport();
+
+/* camera microscope */
+let stream=null,zoom=1,cal=0,zCal=1,pts=[];
+const v1=$('#v1'),vL=$('#vL'),vR=$('#vR'),ov=$('#ov'),sc=$('#sc');
+function attach(){
+  if(!stream)return;
+  [v1,vL,vR].forEach(v=>{if(v.srcObject!==stream)v.srcObject=stream;v.play().catch(()=>{})});
+}
+async function startCam(){
+  if(stream){attach();return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('The camera is not available. Open the page with https in Chrome or Safari.');return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
+    attach();
+  }catch(e){alert('The camera did not start. Allow camera access in the browser settings.')}
+}
+v1.addEventListener('loadedmetadata',()=>{sc.style.aspectRatio=v1.videoWidth+'/'+v1.videoHeight;sizeOv()});
+function sizeOv(){const r=sc.getBoundingClientRect(),d=devicePixelRatio||1;ov.width=r.width*d;ov.height=r.height*d;draw()}
+addEventListener('resize',sizeOv);
+const pxmm=()=>cal?cal*zoom/zCal:0;
+function draw(){
+  const d=devicePixelRatio||1,c=ov.getContext('2d');
+  c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,ov.width,ov.height);
+  const H=ov.height/d;
+  c.lineWidth=2;c.strokeStyle='#f2a900';c.fillStyle='#f2a900';c.font='bold 16px system-ui';
+  pts.forEach(p=>{c.beginPath();c.arc(p.x,p.y,6,0,7);c.stroke()});
+  let m='Tap two points on the image to measure.';
+  const k=pxmm();
+  if(pts.length===2){
+    c.beginPath();c.moveTo(pts[0].x,pts[0].y);c.lineTo(pts[1].x,pts[1].y);c.stroke();
+    const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+    const txt=k?(dist/k).toFixed(2)+' mm':Math.round(dist)+' px (scale not set)';
+    c.fillText(txt,(pts[0].x+pts[1].x)/2+8,(pts[0].y+pts[1].y)/2-8);
+    m='Distance: '+txt;
+  }
+  if(k){
+    const L=[.05,.1,.2,.5,1,2,5,10,20,50].find(l=>l*k>=70)||50,px=L*k;
+    c.strokeStyle='#fff';c.fillStyle='#fff';c.lineWidth=4;
+    c.beginPath();c.moveTo(14,H-20);c.lineTo(14+px,H-20);c.stroke();
+    c.fillText(L+' mm',14,H-28);
+  }
+  $('#meas').textContent=m;
+}
+ov.addEventListener('pointerdown',e=>{
+  const r=ov.getBoundingClientRect();
+  if(pts.length>=2)pts=[];
+  pts.push({x:e.clientX-r.left,y:e.clientY-r.top});draw();
+});
+function setZoom(z){
+  zoom=Math.min(8,Math.max(1,+z));
+  [v1,vL,vR].forEach(v=>v.style.transform='scale('+zoom+')');
+  document.querySelectorAll('.zt').forEach(e=>e.textContent=zoom.toFixed(1)+'x');
+  $('#zoom').value=$('#zoom2').value=zoom;pts=[];draw();
+}
+['#zoom','#zoom2'].forEach(s=>$(s).oninput=e=>setZoom(e.target.value));
+$('#zp').onclick=()=>setZoom(zoom+.5);
+$('#zm').onclick=()=>setZoom(zoom-.5);
+$('#camBtn').onclick=startCam;
+$('#frz').onclick=e=>{if(v1.paused){v1.play();e.target.textContent='Freeze'}else{v1.pause();e.target.textContent='Unfreeze'}};
+$('#setScale').onclick=()=>{
+  if(pts.length<2){alert('First tap two points on an object of known length, for example a ruler.');return}
+  const mm=parseFloat(prompt('Enter the true length between the two points, in mm.'));
+  if(!(mm>0))return;
+  cal=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)/mm;zCal=zoom;draw();
+};
+$('#save').onclick=()=>{
+  if(!v1.videoWidth){alert('Start the camera first.');return}
+  const w=v1.videoWidth/zoom,h=v1.videoHeight/zoom,c=document.createElement('canvas');
+  c.width=w;c.height=h;
+  c.getContext('2d').drawImage(v1,(v1.videoWidth-w)/2,(v1.videoHeight-h)/2,w,h,0,0,w,h);
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='microscope-'+Date.now()+'.png';a.click()});
+};
+$('#vrBtn').onclick=async()=>{
+  await startCam();
+  try{await $('#vrstage').requestFullscreen();await screen.orientation.lock('landscape')}catch(e){}
+};
+$('#vx').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen()};
+
+const mode=new URLSearchParams(location.search).get('mode');
+show(mode==='scope'?'scope':mode==='vr'?'vr':'d3');
+</script>
+</body>
+</html>
