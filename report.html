@@ -205,4 +205,167 @@ table tr:last-child td{border-bottom:.5mm solid var(--ink)}
 <div class="fv"><div class="im"><img data-view="aux" alt="Auxiliary objective and LED ring"></div>
 <p class="cap"><b>Figure 3c.</b> Auxiliary objective and LED ring</p>
 <ul><li>Five objectives: 0.5x, 0.75x, 1.0x, 1.5x and 2.0x.</li><li>The magnetic LED ring has no power cable.</li><li>Set the light with the wheel or with the software.</li><li>A polarizing ring light is also listed.</li></ul></div>
-<div
+<div class="fv"><div class="im"><img data-view="monitor" alt="Monitor"></div>
+<p class="cap"><b>Figure 3d.</b> 13.3 inch HD monitor</p>
+<ul><li>IPS panel, 1920 by 1080, 16:9.</li><li>350 nits, contrast 1000:1, viewing angle 178 degrees.</li><li>Aluminum case. Power: 12 V DC.</li><li>The screen picture is an illustration.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="wd" alt="Working distance"></div>
+<p class="cap"><b>Figure 3e.</b> Working distance</p>
+<ul><li>With the 1.0x objective, the working distance is 80 mm.</li><li>Field of view: 17.14 mm at low zoom, 2.14 mm at high zoom.</li><li>The sample is an illustration.</li></ul></div>
+<div class="fv"><div class="im"><img data-view="stand" alt="Stand and bracket"></div>
+<p class="cap"><b>Figure 3f.</b> Stand and bracket (generic)</p>
+<ul><li>The lens body has a standard 50 mm bracket interface.</li><li>The listing does not say that a stand is included.</li><li>This boom stand is our own generic design.</li><li>Use a stand that holds a 50 mm bracket.</li></ul></div>
+</div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 3 of 4</span></div>
+</section>
+
+<!-- SHEET 4 -->
+<section class="sheet">
+<div class="rh"><span>Digital microscope AR/VR project</span><span>Technical report | Revision A</span></div>
+<div class="side"><div class="sn">4</div><h2>AR and VR viewer</h2>
+<p>This sheet shows what the viewer does and how to open it.</p>
+<p>Scan a code with your phone camera. Tap the link.</p></div>
+<div class="body b4">
+<div class="col">
+<div><h3><span class="n">4.1</span>What the viewer does</h3>
+<div class="tc"><b>Table 4.</b> Viewer modules</div>
+<table><colgroup><col style="width:24mm"><col><col style="width:44mm"></colgroup>
+<tr><th>Module</th><th>Function</th><th>Works on</th></tr>
+<tr><td>3D model</td><td>Turn the model and take it apart. Tap a number to read about a part.</td><td>Phone or laptop</td></tr>
+<tr><td>AR</td><td>Put the model at real size on a table.</td><td>Android (Chrome, ARCore). iPhone and iPad (Safari).</td></tr>
+<tr><td>Camera demo</td><td>The phone camera acts as a microscope: zoom, freeze, scale and two-point measurement.</td><td>Phone with a camera</td></tr>
+<tr><td>VR view</td><td>The camera image shows twice for a phone VR holder.</td><td>Phone and VR holder</td></tr>
+</table></div>
+<div><h3><span class="n">4.2</span>How the video moves</h3>
+<div class="fl">In the real device</div>
+<div class="flow"><div>Sample</div><i>&rarr;</i><div>Auxiliary objective</div><i>&rarr;</i><div>Zoom lens</div><i>&rarr;</i><div>Sensor and image processor</div><i>&rarr;</i><div>HDMI output</div><i>&rarr;</i><div>Monitor or SD card</div></div>
+<div class="fl">Proposed extension</div>
+<div class="flow p"><div>HDMI capture adapter</div><i>&rarr;</i><div>Phone or PC</div><i>&rarr;</i><div>AR labels or VR holder</div></div>
+<p class="cap"><b>Figure 4.</b> Video path. The S-VM701 sends video through HDMI. Its USB port is for a mouse. A capture adapter is not part of the device.</p></div>
+<div><h3><span class="n">4.3</span>Next steps</h3>
+<table><colgroup><col style="width:9mm"><col><col style="width:20mm"></colgroup>
+<tr><th>No.</th><th>Task</th><th>Status</th></tr>
+<tr><td>1</td><td>Web viewer: 3D model, AR, camera demo, VR view</td><td>Done</td></tr>
+<tr><td>2</td><td>Test with the real S-VM701</td><td>Open</td></tr>
+<tr><td>3</td><td>Send the live HDMI image to the viewer</td><td>Open</td></tr>
+<tr><td>4</td><td>Add AR labels and measurement</td><td>Open</td></tr>
+<tr><td>5</td><td>Test in a class and collect feedback</td><td>Open</td></tr>
+</table></div>
+</div>
+<div class="col">
+<div><h3><span class="n">4.4</span>How to open the viewer</h3>
+<div class="qrs">
+<div><div data-q="ar"></div><div class="t">Code 1. AR</div><ol><li>Scan the code.</li><li>Tap View in your room.</li><li>Move the phone slowly over a flat surface.</li></ol></div>
+<div><div data-q="scope"></div><div class="t">Code 2. Camera demo</div><ol><li>Scan the code.</li><li>Tap Start camera. Allow access.</li><li>Hold the phone close to a small object.</li></ol></div>
+<div><div data-q="vr"></div><div class="t">Code 3. VR view</div><ol><li>Scan the code.</li><li>Tap Start VR view.</li><li>Put the phone in a VR holder.</li></ol></div>
+</div>
+<div style="margin-top:4mm"><div class="fl">Web address</div><div class="u"></div></div></div>
+<div class="note c"><b>Caution</b>Use Chrome on Android or Safari on iPhone. Do not open the link inside a chat app. AR needs a phone with AR support. On Android, Google Play Services for AR must be installed.</div>
+<div class="note c"><b>Limits</b>We did not test the real device. The stand, the cable, the zoom control and the port layout are our own design. The camera demo does not show the image of the real microscope. The VR view is flat. It does not show true depth.</div>
+<div class="src"><h3><span class="n">4.5</span>Sources and tools</h3>
+<ul>
+<li>Device data: NYMCS-VM701 manual and product listing, New York Microscope Company, read on 28 October 2026.</li>
+<li>The 3D model and pictures are original work. The screen picture and the sample are illustrations.</li>
+<li>Tools: three.js (MIT), model-viewer (Apache 2.0), qrcode-generator (MIT).</li>
+</ul>
+<p style="margin-top:4mm">Guide's signature: <span class="fld" contenteditable="true">&nbsp;</span></p></div>
+</div>
+</div>
+<div class="rf"><span>COEP Technological University, Pune | Kshitij Rathi (612302049), Shreya Patil (612302044)</span><span>Page 4 of 4</span></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const DEFAULT='https://kshitij0610.github.io/ARVR/';
+const base=location.protocol.startsWith('http')?location.href.replace(/[^\/]*$/,'').split('?')[0]:DEFAULT;
+function qrSvg(text){
+  const q=qrcode(0,'M');q.addData(text);q.make();
+  const n=q.getModuleCount();let d='';
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+='M'+c+' '+r+'h1v1h-1z';
+  return '<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" shape-rendering="crispEdges"><rect x="-2" y="-2" width="'+(n+4)+'" height="'+(n+4)+'" fill="#fff"/><path d="'+d+'" fill="#1b1d20"/></svg>';
+}
+document.querySelectorAll('[data-q]').forEach(e=>{e.innerHTML=qrSvg(base+'?mode='+e.dataset.q)});
+document.querySelectorAll('.u').forEach(e=>{e.textContent=base});
+if(!location.protocol.startsWith('http'))document.getElementById('local').hidden=false;
+
+function chart(title,rows,max,ticks,unit){
+  const W=200,L=34,R=10,T=20,rowH=24,H=T+rows.length*rowH+30;
+  const sx=v=>L+(W-L-R)*v/max;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Helvetica Neue,Arial,sans-serif">';
+  s+='<text x="0" y="11" font-size="11" font-weight="600" fill="#1b1d20">'+title+'</text>';
+  ticks.forEach(t=>{
+    const x=sx(t);
+    s+='<line x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(T+rows.length*rowH)+'" stroke="#d6d9dd" stroke-width=".8"/>';
+    s+='<text x="'+x+'" y="'+(T+rows.length*rowH+11)+'" font-size="9" text-anchor="middle" fill="#5d636b">'+t+'</text>';
+  });
+  s+='<text x="'+(L+(W-L-R)/2)+'" y="'+(H-2)+'" font-size="9" text-anchor="middle" fill="#5d636b">'+unit+'</text>';
+  rows.forEach((r,i)=>{
+    const y=T+i*rowH+4;
+    s+='<text x="'+(L-5)+'" y="'+(y+11)+'" font-size="9.5" text-anchor="end" fill="#1b1d20">'+r[0]+'</text>';
+    s+='<rect x="'+sx(r[1])+'" y="'+y+'" width="'+(sx(r[2])-sx(r[1]))+'" height="15" fill="#1f4e79"/>';
+    s+='<text x="'+(sx(r[2])+4)+'" y="'+(y+11)+'" font-size="9" fill="#1b1d20">'+r[3]+'</text>';
+  });
+  return s+'</svg>';
+}
+document.getElementById('ch1').innerHTML=chart('Working distance',[['0.5x',0,160,'160'],['0.75x',0,105,'105'],['1.0x',0,80,'80'],['1.5x',0,51.5,'51.5'],['2.0x',0,37.5,'37.5']],200,[0,50,100,150,200],'millimetres');
+document.getElementById('ch2').innerHTML=chart('Primary magnification',[['0.5x',.18,1.4,'0.18 to 1.40'],['0.75x',.26,2.1,'0.26 to 2.10'],['1.0x',.35,2.8,'0.35 to 2.80'],['1.5x',.53,4.2,'0.53 to 4.20'],['2.0x',.7,5.6,'0.70 to 5.60']],9,[0,3,6,9],'low zoom to high zoom (x)');
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import {build,makeEnvironment} from './microscope.js';
+const VIEWS=[
+ {id:'main',w:1600,h:1000,fov:30,t:1,pos:[1.22,.62,1.14],tgt:[.27,.32,-.06],co:true},
+ {id:'ports',w:1200,h:600,fov:28,t:0,pos:[-.10,.41,-.16],tgt:[-.01,.365,.0]},
+ {id:'zoom',w:1200,h:600,fov:28,t:0,pos:[.27,.29,.37],tgt:[0,.24,.055]},
+ {id:'aux',w:1200,h:600,fov:28,t:0,pos:[.17,.085,.27],tgt:[0,.125,.055]},
+ {id:'monitor',w:1200,h:600,fov:28,t:0,pos:[.12,.15,.55],tgt:[.33,.1,-.03]},
+ {id:'wd',w:1200,h:600,fov:28,t:0,pos:[.27,.085,.22],tgt:[0,.075,.055]},
+ {id:'stand',w:1200,h:600,fov:28,t:0,pos:[.28,.32,.26],tgt:[0,.29,-.03]}
+];
+const btn=document.getElementById('pbtn'),st=document.getElementById('rstat');
+async function run(){
+  try{
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    const scene=new THREE.Scene();scene.environment=makeEnvironment(renderer);
+    const sun=new THREE.DirectionalLight(0xffffff,1.8);
+    sun.position.set(.7,1.5,1);sun.target.position.set(.2,0,0);
+    sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+    Object.assign(sun.shadow.camera,{left:-1,right:1,top:1,bottom:-1,near:.3,far:4});
+    sun.shadow.camera.updateProjectionMatrix();
+    sun.shadow.bias=-.0004;sun.shadow.normalBias=.002;
+    scene.add(sun,sun.target);
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.ShadowMaterial({opacity:.25}));
+    ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+    const m=build();scene.add(m.rig);
+    const cam=new THREE.PerspectiveCamera(30,1,.02,30);
+    for(const v of VIEWS){
+      m.setExplode(v.t);scene.updateMatrixWorld(true);
+      renderer.setSize(v.w,v.h,false);
+      cam.fov=v.fov;cam.aspect=v.w/v.h;
+      cam.position.set(v.pos[0],v.pos[1],v.pos[2]);cam.lookAt(v.tgt[0],v.tgt[1],v.tgt[2]);
+      cam.updateProjectionMatrix();cam.updateMatrixWorld();
+      renderer.render(scene,cam);
+      const url=renderer.domElement.toDataURL('image/png');
+      document.querySelectorAll('[data-view="'+v.id+'"]').forEach(img=>{img.src=url});
+      if(v.co){
+        const box=document.getElementById('cos');box.innerHTML='';
+        m.parts.forEach((p,i)=>{
+          const w=p.anchor.clone();p.g.localToWorld(w);w.project(cam);
+          const s=document.createElement('span');s.className='co';s.textContent=i+1;
+          s.style.left=((w.x+1)/2*100)+'%';s.style.top=((1-w.y)/2*100)+'%';
+          box.appendChild(s);
+        });
+      }
+      await new Promise(r=>setTimeout(r,30));
+    }
+    st.textContent='Pictures ready.';btn.disabled=false;
+  }catch(e){
+    st.textContent='The 3D pictures did not build: '+e.message+'. Open this page from the hosted address.';
+  }
+}
+run();
+</script>
+</body>
+</html>
